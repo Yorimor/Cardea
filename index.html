@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Zur'ok Status</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+        }
+        body {background-color: lightgrey;}
+        #header {
+            width: 100%;
+            text-align: center;
+            font-size: 4rem;
+            margin-bottom: 15px;
+            border-bottom: 5px solid cornflowerblue;
+        }
+
+        #statusContainer {
+            font-size: 2rem;
+            margin-left: auto;
+            margin-right: auto;
+            width: 400px;
+            display: flex;
+            gap: 1rem;
+            flex-direction: column;
+        }
+        .unit {
+            display: flex;
+            gap: 0.5rem;
+            justify-items: center;
+            flex-direction: column;
+            border: 8px solid black;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .unit.hidden { display: none !important; }
+        .unit.active { border-color: darkgreen; }
+        .unit.stopped { border-color: darkred; }
+
+        .name {
+            width: 100%;
+            text-align: center;
+            border-bottom: 2px solid black;
+        }
+        .status {
+            text-align: center;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+<div id="header">Zur'ok status</div>
+<div id="statusContainer">
+    <div id="template" class="unit active">
+        <div class="name">Cardea</div>
+        <div class="status">active | running</div>
+    </div>
+</div>
+
+<script>
+    const statusContainer = document.querySelector('#statusContainer');
+
+    const template = document.querySelector('#template');
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch("/status/")
+            .then(function (response) {return response.json();})
+            .then(function (data) {
+                for (var unit in data) {
+                    var unitDiv = template.cloneNode(true);
+
+                    unitDiv.children[0].innerText = data[unit]["name"];
+                    unitDiv.children[1].innerText = data[unit]["status"] + " | " + data[unit]["subStatus"];
+                    if (data[unit]["subStatus"] === "running") {
+                        unitDiv.classList.add("active");
+                    }
+                    unitDiv.id = unit;
+                    statusContainer.appendChild(unitDiv);
+                }
+            })
+
+        var intervalId = window.setInterval(function(){
+            updateStatus();
+        }, 5000);
+    })
+
+    function updateStatus() {
+        fetch("/status/")
+            .then(function (response) {return response.json();})
+            .then(function (data) {
+                for (var unit in data) {
+                    var unitDiv = document.getElementById(unit);
+
+                    unitDiv.children[0].innerText = data[unit]["name"];
+                    unitDiv.children[1].innerText = data[unit]["status"] + " | " + data[unit]["subStatus"];
+                    if (data[unit]["subStatus"] === "running") {
+                        unitDiv.classList.add("active");
+                    }
+                }
+            })
+    }
+</script>
+</body>
+</html>
