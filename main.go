@@ -30,7 +30,7 @@ func main() {
 	http.HandleFunc("/", homePage)
 	http.HandleFunc("/status/", statusPage)
 
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	log.Fatal(http.ListenAndServe("0.0.0.0:7000", nil))
 }
 
 func homePage(w http.ResponseWriter, r *http.Request) {
